@@ -1,0 +1,6 @@
+FROM jupyter/pyspark-notebook:spark-3.5.0
+
+USER root
+
+RUN pip uninstall -y kafka 2>/dev/null || true \
+    && pip install --no-cache-dir kafka-python==2.0.2 boto3

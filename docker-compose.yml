@@ -18,9 +18,9 @@ services:
     image: postgres:13
     container_name: airflow_database
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      - POSTGRES_USER=coinbase
+      - POSTGRES_PASSWORD=coinbase
+      - POSTGRES_DB=coinbase
     ports:
       - 5432:5432
     volumes:
@@ -38,7 +38,7 @@ services:
       - .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://coinbase:coinbase@postgres/coinbase
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=d5157558325e4e3c03de9a085796db0b
       - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
@@ -66,7 +66,7 @@ services:
       - .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://coinbase:coinbase@postgres/coinbase
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=d5157558325e4e3c03de9a085796db0b
       - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
@@ -83,16 +83,25 @@ services:
     image: apache/airflow:2.10.2
     depends_on:
       - postgres
+    env_file:
+      - .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://coinbase:coinbase@postgres/coinbase
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=d5157558325e4e3c03de9a085796db0b
       - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
       - AIRFLOW__LOGGING__SERVE_LOGS=True
-    command: db migrate
+    command: >
+      bash -c "airflow db migrate &&
+               airflow users create
+                 --username $${AIRFLOW_WWW_USER_USERNAME:-admin}
+                 --firstname admin
+                 --lastname admin
+                 --role admin
+                 --email admin@example.com
+                 --password $${AIRFLOW_WWW_USER_PASSWORD:-admin} || true"
     user: "0"
-
   minio:
     image: minio/minio
     container_name: minio_backet
