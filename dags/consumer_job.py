@@ -3,7 +3,6 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
-
 def_args = {
     'owner': 'главный',
     'start_date': datetime(2023, 1, 1),
@@ -26,26 +25,26 @@ docker exec -i \
   -e AWS_ACCESS_KEY_ID="$MINIO_USER" \
   -e AWS_SECRET_ACCESS_KEY="$MINIO_PASSWORD" \
   -e CLICKHOUSE_PASSWORD="$CLICKHOUSE_PASSWORD" \
-  spark_single spark-submit --packages {SPARK_PACKAGES} /home/jovyan/work/kafka_jobs/producer.py
+  spark_single spark-submit --packages {SPARK_PACKAGES} /home/jovyan/work/kafka_jobs/consumer.py
 """
 
 def end_msg():
-    print("данные залились успешно")
+    print("консьюмер завершил работу")
 
 with DAG(
-    'producer',
+    'consumer',
     default_args=def_args,
     schedule_interval=None,
     catchup=False,
 ) as dag:
 
-    producer_kafka = BashOperator(
-        task_id='producer_kafka',
+    consumer_kafka = BashOperator(
+        task_id='consumer_kafka',
         bash_command=(
             'docker exec '
             '-e AWS_ACCESS_KEY_ID="$MINIO_USER" '
             '-e AWS_SECRET_ACCESS_KEY="$MINIO_PASSWORD" '
-            'spark_single bash -c "cd /home/jovyan/work/kafka_jobs && python producer.py"'
+            'spark_single bash -c "cd /home/jovyan/work/kafka_jobs && python consumer.py"'
         ),
     )
 
@@ -54,4 +53,4 @@ with DAG(
         python_callable=end_msg
     )
 
-    producer_kafka >> end_task
+    consumer_kafka >> end_task

@@ -18,8 +18,8 @@ def s3_client(ws):
 def on_open(ws):
     sub_topic = {
         "type": "subscribe",
-        "product_ids": ['BTC-USD', 'ETH-USD', 'LTC-USD', 'BCH-USD', 'XRP-USD'],  # Исправлено: product_ids
-        "channels": ['matches']  # Исправлено: matches
+        "product_ids": ['BTC-USD', 'ETH-USD', 'LTC-USD', 'BCH-USD', 'XRP-USD'],
+        "channels": ['matches']
     }
     ws.send(json.dumps(sub_topic))
     print("Подписка на WebSocket Coinbase отправлена!")
@@ -31,10 +31,10 @@ def on_message(ws, message):
         print(f"[KAFKA <- COINBASE] {data.get('product_id')}: {data.get('price')} USD")
 
 def on_error(ws, error):
-    print(f"Ошибка WebSocket: {error}")
+    print(f"oшибка WebSocket: {error}")
 
 def on_close(ws, close_status_code, close_msg):
-    print("Соединение с Coinbase закрыто")
+    print("cоединение с Coinbase оффнуто")
 
 ws = websocket.WebSocketApp(
     "wss://ws-feed.exchange.coinbase.com", 
